@@ -1,34 +1,24 @@
 # Architecture
 
-My_Agent starts as a modular monolith. Keep one API and one independently evolving
-universal agent, while preserving explicit boundaries between features.
+My_Agent is a single universal agent with a modular core. Infrastructure
+components can become independent services when there is a demonstrated need.
 
-## Modules
+## Current components
 
-- api: HTTP routes, request validation, and response schemas.
-- core: configuration and common application primitives.
-- agents: agent runtime, planning, tools, memory, and future subagent delegation.
-- rag: document ingestion, retrieval, reranking, and Qdrant-backed memory.
-- evaluation: benchmark adapters, experiment orchestration, and comparable metrics.
-- infrastructure: PostgreSQL repositories and integrations with external services.
+- FastAPI backend: HTTP API, agent package, configuration, and model adapter.
+- vLLM inference: optional Docker Compose profile with an OpenAI-compatible API.
+- Dev Container: connects to the backend service from Docker/compose.yaml.
 
-## Infrastructure
+The agent does not depend on the local inference implementation. Its model
+adapter uses the OpenAI-compatible API and can later point to a cloud model.
 
-Docker Compose starts the FastAPI service, PostgreSQL, and Qdrant. Development uses
-the same API service through the VS Code Dev Container, with the virtual environment
-stored in a Docker volume. All published ports bind to localhost by default.
+## Planned evolution
 
-PostgreSQL will hold application state, run metadata, and experiment results.
-Qdrant will hold retrieval indexes, not benchmark answers. Benchmark ground truth
-must remain isolated from the agent and the retrieval corpus.
+1. LangChain agent and basic tools.
+2. LangGraph orchestration, state, and benchmark adapters.
+3. Qdrant-backed RAG and agent-controlled retrieval.
+4. DeepAgents, subagents, and richer planning.
+5. Isolated execution, background workers, and benchmark environments.
 
-## Evolution
-
-1. Add a minimal LangGraph-powered agent and a model-provider interface.
-2. Add benchmark adapters and reproducible experiment records.
-3. Implement baseline RAG, then agent-controlled retrieval.
-4. Introduce DeepAgents and subagents where measured results justify them.
-5. Add a task queue, isolated execution workers, and observability when required.
-
-Do not put business logic in API handlers. Do not couple the universal agent
-to a particular benchmark, model provider, or database implementation.
+PostgreSQL, Qdrant, and queue services will be added when needed. Benchmark
+ground truth must stay inaccessible to the agent and its retrieval corpus.

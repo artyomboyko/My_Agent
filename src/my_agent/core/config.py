@@ -1,4 +1,4 @@
-"""Centralized application settings."""
+"""Centralized model configuration."""
 
 from functools import lru_cache
 
@@ -6,17 +6,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Settings for local development and containerized deployment."""
+    """Settings for local development and OpenAI-compatible inference."""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(extra="ignore")
 
-    database_url: str = (
-        "postgresql+asyncpg://my_agent:change_me_local@localhost:5432/my_agent"
-    )
-    qdrant_url: str = "http://localhost:6333"
+    openai_base_url: str = "http://localhost:8001/v1"
+    openai_api_key: str = "local-development"
+    model_id: str = "Qwen/Qwen3-0.6B"
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Reuse validated settings across application components."""
+    """Reuse validated settings across components."""
     return Settings()

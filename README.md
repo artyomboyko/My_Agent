@@ -2,40 +2,44 @@
 
 A universal AI agent.
 
-My_Agent is developed incrementally as a single modular agent. Its capabilities,
-architecture, and benchmark integrations will evolve over time.
+My_Agent evolves incrementally as we add tools, planning, memory, RAG,
+subagents, and reproducible benchmarks.
 
-## Stack
+## Initial stack
 
-- Python 3.12, FastAPI, Pydantic, uv
-- LangChain, LangGraph, DeepAgents
-- PostgreSQL, SQLAlchemy, Qdrant
-- Docker Compose and VS Code Dev Containers
-- pytest and Ruff
+Python 3.12, FastAPI, LangChain, uv, optional local vLLM inference,
+Docker Compose, Dev Containers, pytest, and Ruff.
 
-## Quick start
+## Start development
 
-Install Docker with the Compose plugin and clone this repository. Then run:
+Install Docker with Compose and clone this repository. From the project root:
 
 ~~~sh
-cp .env.example .env
-docker compose up --build
+cp Docker/.env.example Docker/.env
+docker compose --env-file Docker/.env -f Docker/compose.yaml up --build -d backend
 ~~~
 
-The API is available at http://localhost:8000/docs and the liveness endpoint
-at http://localhost:8000/health. Qdrant is available on localhost:6333.
+Backend health: http://localhost:8000/health
+API documentation: http://localhost:8000/docs
 
-The API starts with a health endpoint and an architectural skeleton. Agent
-execution, document ingestion, and benchmark runners will be implemented
-incrementally; they are not active HTTP endpoints yet.
+To start the optional local inference service, use a supported NVIDIA GPU
+and a configured NVIDIA Container Toolkit:
 
-## Development
+~~~sh
+docker compose --env-file Docker/.env -f Docker/compose.yaml --profile local-inference up --build -d
+~~~
 
-Open the repository in VS Code with the Dev Containers extension and run
-"Dev Containers: Reopen in Container". VS Code will attach to the same API
-service defined in compose.yaml, and uv will install the development tools.
+Inference API: http://localhost:8001/v1
 
-Run tests and linting from the container terminal:
+The default Qwen/Qwen3-0.6B is a lightweight connectivity test model, not a
+recommended agent benchmark model. Select an agent-capable model based
+on available VRAM. Model weights are cached in a Docker volume.
+
+For VS Code development, select "Dev Containers: Reopen in Container".
+VS Code opens the backend from Docker/compose.yaml and runs uv sync
+to install development dependencies.
+
+Inside the Dev Container:
 
 ~~~sh
 uv run --no-sync pytest
@@ -43,22 +47,14 @@ uv run --no-sync ruff check .
 uv run --no-sync ruff format --check .
 ~~~
 
-The first uv sync creates uv.lock. Commit the generated lockfile after a
-successful dependency resolution to make future builds reproducible. Once
-uv.lock is committed, image builds can be changed to use uv sync --locked.
+The first successful uv sync generates uv.lock; commit that lock file for
+reproducible installations and switch image builds to uv sync --locked.
 
-To stop the local stack:
-
-~~~sh
-docker compose down
-~~~
-
-Database and Qdrant data are stored in named Docker volumes; docker compose
-down --volumes also deletes those local development volumes.
-
-See docs/architecture.md for module boundaries and the planned evolution.
+This first version contains the backend health endpoint and model adapter,
+not a complete agent. PostgreSQL and Qdrant are deliberately deferred.
+See docs/architecture.md for the module boundaries and roadmap.
 
 ## License
 
-PolyForm Noncommercial License 1.0.0. Commercial use is governed by the
-license terms and, where required, a separate commercial license.
+PolyForm Noncommercial License 1.0.0. Commercial use is governed by
+the license terms and, where required, a separate commercial license.
