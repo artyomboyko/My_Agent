@@ -1,19 +1,16 @@
 {
   "name": "My_Agent",
-  "dockerComposeFile": "../compose.yaml",
-  "service": "api",
+  "dockerComposeFile": "../Docker/compose.yaml",
+  "service": "backend",
   "runServices": [
-    "api",
-    "postgres",
-    "qdrant"
+    "backend"
   ],
   "workspaceFolder": "/workspace",
   "remoteUser": "vscode",
   "overrideCommand": false,
   "shutdownAction": "stopCompose",
   "forwardPorts": [
-    8000,
-    6333
+    8000
   ],
   "postCreateCommand": "uv sync",
   "customizations": {

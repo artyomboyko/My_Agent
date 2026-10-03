@@ -1,0 +1,9 @@
+.git
+.github
+.devcontainer
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+Docker/.env

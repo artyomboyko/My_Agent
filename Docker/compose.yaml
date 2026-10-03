@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile
+    command: uv run --no-sync uvicorn my_agent.api.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    environment:
+      OPENAI_BASE_URL: http://inference:8000/v1
+      OPENAI_API_KEY: local-development
+      MODEL_ID: ${MODEL_ID:-Qwen/Qwen3-0.6B}
+    volumes:
+      - ..:/workspace:cached
+      - python_venv:/workspace/.venv
+  inference:
+    profiles: ["local-inference"]
+    image: vllm/vllm-openai:latest
+    command: ["--model", "${MODEL_ID:-Qwen/Qwen3-0.6B}", "--host", "0.0.0.0", "--port", "8000", "--max-model-len", "4096"]
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    ports:
+      - "127.0.0.1:${INFERENCE_PORT:-8001}:8000"
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+    gpus: all
+    ipc: host
+volumes:
+  python_venv:
+  huggingface_cache:
